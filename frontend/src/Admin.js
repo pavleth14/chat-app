@@ -23,7 +23,7 @@ function Admin() {
   const register = async (e) => {
     try {
       e.preventDefault();
-      const response = await fetch('http://localhost:8080/admin-login', {
+      const response = await fetch('http://localhost:8080/api/admin-login', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',

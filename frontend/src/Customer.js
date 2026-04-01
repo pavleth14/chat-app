@@ -20,6 +20,7 @@ function Customer() {
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [password, setPassword] = useState('');
 
   const [channel, setChannel] = useState(null);
 
@@ -27,7 +28,7 @@ function Customer() {
     try {
       e.preventDefault();
 
-      const response = await fetch('http://localhost:8080/customer-login', {
+      const response = await fetch('http://localhost:5001/api/register', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -36,26 +37,46 @@ function Customer() {
         body: JSON.stringify({
           firstName,
           lastName,
-          email,
+          password
         }),
       });
 
-      const { customerId, customerToken, channelId, streamApiKey } = await response.json();
+      // const { customerId, customerToken, channelId, streamApiKey } = await response.json();
+      // console.log("TOKEN:", customerToken);
+      // chatClient = new StreamChat(streamApiKey);
+
+      // await chatClient.setUser(
+      //   {
+      //     id: customerId,
+      //     name: firstName,
+      //   },
+      //   customerToken,
+      // );
+
+      // const channel = chatClient.channel('messaging', channelId, {
+      //   name: `Chat with ${customerId}`
+      // });
+
+      // await channel.watch;
+      // setChannel(channel);
+
+      const { userId, token, streamApiKey } = await response.json();
+      console.log("TOKEN:", token);
       chatClient = new StreamChat(streamApiKey);
 
       await chatClient.setUser(
         {
-          id: customerId,
+          id: userId,
           name: firstName,
         },
-        customerToken,
+        token,
       );
 
-      const channel = chatClient.channel('messaging', channelId, {
-        name: `Chat with ${customerId}`
+      const channel = chatClient.channel('messaging', userId, {
+        name: `Chat with ${userId}`
       });
 
-      await channel.watch;
+      await channel.watch();
       setChannel(channel);
 
     } catch (e) {
@@ -108,12 +129,12 @@ function Customer() {
             placeholder="last name"
             required
           />
-          <label>Email</label>
+          <label>password</label>
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="email"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="password"
             required
           />
           <button type="submit">
