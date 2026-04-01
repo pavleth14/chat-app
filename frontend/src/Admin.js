@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StreamChat } from 'stream-chat';
-import 'stream-chat-react/dist/css/index.css';
+import 'stream-chat-react/dist/css/v2/index.css';
 import {
   Chat,
   Channel,
