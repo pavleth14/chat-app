@@ -67,12 +67,11 @@ exports.register = async (req, res) => {
     }
 };
 
-// =====================
-// LOGIN (user + admin)
-// =====================
 exports.login = async (req, res) => {
     try {
-        const username = req.body.username.replace(/\s/g, '_').toLowerCase();
+        const firstName = req.body.firstName.replace(/\s/g, '_').toLowerCase();
+        const lastName = req.body.lastName.replace(/\s/g, '_').toLowerCase();
+        const username = `${firstName}${lastName}`;
         const password = req.body.password;
 
         // proveri MongoDB
@@ -84,7 +83,7 @@ exports.login = async (req, res) => {
         if (!isMatch) return res.status(401).json({ error: 'Invalid password' });
 
         // generiši Stream token
-        const token = streamClient.createToken(user.streamId);
+        const token = streamClient.createToken(user.username);
 
         res.status(200).json({
             userId: user.username,

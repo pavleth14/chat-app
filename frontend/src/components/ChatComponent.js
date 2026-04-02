@@ -7,6 +7,7 @@ import {
   MessageInput,
   TypingIndicator,
 } from "stream-chat-react";
+import CustomEmptyState from "./CustomEmptyState";
 
 function ChatComponent({ chatClient, channel, firstName }) {
   return (
@@ -47,7 +48,7 @@ function ChatComponent({ chatClient, channel, firstName }) {
 
           {/* Messages */}
           <div className="flex-1 overflow-hidden bg-zinc-950">
-            <MessageList typingIndicator={<TypingIndicator />} />
+            <MessageList typingIndicator={<TypingIndicator EmptyStateIndicator={CustomEmptyState} />} />
           </div>
 
           {/* Input */}

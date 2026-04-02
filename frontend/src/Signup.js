@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 
 function Signup() {
@@ -6,9 +6,11 @@ function Signup() {
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
- // const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // ref za redirect na login
+  const loginLinkRef = useRef(null);
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -28,8 +30,13 @@ function Signup() {
       alert("Registration successful! You can now log in.");
       setFirstName("");
       setLastName("");
-     // setEmail("");
+      //setUsername(""); // <-- reset
       setPassword("");
+
+      // redirect na login preko Link
+      if (loginLinkRef.current) {
+        loginLinkRef.current.click();
+      }
     } catch (err) {
       console.error(err);
       alert("Error during registration.");
@@ -45,9 +52,7 @@ function Signup() {
         {/* Header */}
         <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 px-8 py-12 text-center border-b border-zinc-700">
           <h1 className="text-4xl font-bold text-white mb-3">Sign Up</h1>
-          <p className="text-zinc-400 text-lg">
-            Create an account to access support
-          </p>
+          <p className="text-zinc-400 text-lg">Create an account to access support</p>
         </div>
 
         {/* Signup form */}
@@ -81,7 +86,7 @@ function Signup() {
               />
             </div>
 
-         
+          
 
             <div>
               <label className="block text-sm font-medium text-zinc-400 mb-2">
@@ -115,19 +120,24 @@ function Signup() {
         </div>
 
         {/* Footer */}
-       <div className="text-center pb-8 text-zinc-500 text-sm space-y-2">
-  <p>Your data is secure and will not be shared.</p>
+        <div className="text-center pb-8 text-zinc-500 text-sm space-y-2">
+          <p>Your data is secure and will not be shared.</p>
+          <p>
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-indigo-500 hover:text-indigo-400 underline"
+            >
+              Log in here
+            </Link>
+          </p>
+        </div>
 
-  <p>
-    Already have an account?{" "}
-    <Link
-      to="/login"
-      className="text-indigo-500 hover:text-indigo-400 underline"
-    >
-      Log in here
-    </Link>
-  </p>
-</div>
+        {/* skriveni link za automatski redirect */}
+        <Link to="/login" ref={loginLinkRef} style={{ display: "none" }}>
+          login
+        </Link>
+
       </div>
     </div>
   );

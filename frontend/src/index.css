@@ -1,3 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+.str-chat__empty-channel {
+  @apply text-yellow-400 bg-gray-800 text-center p-10 rounded-lg font-bold;
+}
