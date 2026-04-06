@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StreamChat } from 'stream-chat';
 import ChatComponent from './components/ChatComponent';
 import 'stream-chat-react/dist/css/v2/index.css';
+import { Link } from 'react-router-dom/cjs/react-router-dom.min';
 
 let chatClient = null;
 
@@ -160,10 +161,19 @@ function Login() {
             </button>
           </form>
         </div>
+<div className="text-center pb-8 text-zinc-500 text-sm space-y-2">
+  <p>Your data is safe and will only be used for this chat session.</p>
 
-        <div className="text-center pb-8 text-zinc-500 text-sm">
-          Your data is safe and will only be used for this chat session.
-        </div>
+  <p>
+    Don't have an account?{" "}
+    <Link
+      to="/signup"
+      className="text-indigo-500 hover:text-indigo-400 underline"
+    >
+      Sign up here
+    </Link>
+  </p>
+</div>
       </div>
     </div>
   );

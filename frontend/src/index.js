@@ -13,12 +13,12 @@ ReactDOM.render(
       <Switch>
         {/* Default ruta: kada se otvori "/" idemo na Signup */}
         <Route path="/" exact>
-          <Signup />
+         <Login />
         </Route>
 
         {/* Customer login/chat */}
-        <Route path="/login" exact>
-          <Login />
+        <Route path="/signup" exact>
+        <Signup />
         </Route>
 
         {/* Admin chat */}
