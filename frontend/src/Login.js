@@ -26,9 +26,11 @@ function Login() {
     setLoading(true);
 
     try {
+      // 🚀 Backend login request
       const response = await fetch('http://localhost:5001/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        //credentials: 'include', // 🔥 HTTP-only cookie
         body: JSON.stringify({
           firstName: firstName.trim(),
           lastName: lastName.trim(),
@@ -59,7 +61,7 @@ function Login() {
         chatClient = StreamChat.getInstance(streamApiKey);
       }
 
-      // Connect user
+      // Connect user to Stream
       await chatClient.connectUser(
         { id: userId, name: `${firstName} ${lastName}` },
         token
@@ -67,11 +69,8 @@ function Login() {
 
       console.log('User connected to StreamChat:', userId);
 
-      // === Create channel ===
+      // Create channel
       const newChannel = chatClient.channel('messaging', userId);
-
-      console.log('Channel successfully created:', newChannel.id);
-
       setChannel(newChannel);
 
     } catch (err) {
@@ -82,14 +81,14 @@ function Login() {
     }
   };
 
-  // Cleanup
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       chatClient?.disconnectUser().catch(console.error);
     };
   }, []);
 
-  // If channel is active → show chat
+  // If channel exists → show chat
   if (channel) {
     return <ChatComponent chatClient={chatClient} channel={channel} />;
   }
@@ -98,9 +97,8 @@ function Login() {
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
       <div className="bg-zinc-900 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-zinc-800">
-        
+
         <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 px-8 py-12 text-center border-b border-zinc-700">
-          
           <h1 className="text-4xl font-bold text-white mb-3">Log in</h1>
           <p className="text-zinc-400 text-lg">Our team is ready to help you</p>
         </div>
@@ -161,19 +159,20 @@ function Login() {
             </button>
           </form>
         </div>
-<div className="text-center pb-8 text-zinc-500 text-sm space-y-2">
-  <p>Your data is safe and will only be used for this chat session.</p>
 
-  <p>
-    Don't have an account?{" "}
-    <Link
-      to="/signup"
-      className="text-indigo-500 hover:text-indigo-400 underline"
-    >
-      Sign up here
-    </Link>
-  </p>
-</div>
+        <div className="text-center pb-8 text-zinc-500 text-sm space-y-2">
+          <p>Your data is safe and will only be used for this chat session.</p>
+
+          <p>
+            Don't have an account?{" "}
+            <Link
+              to="/signup"
+              className="text-indigo-500 hover:text-indigo-400 underline"
+            >
+              Sign up here
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
