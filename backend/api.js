@@ -9,7 +9,11 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 const api = express();
-const indexRouter = require('./index'); // ← ovo je router, ne app
+// api.use((req, res, next) => {
+//   console.log('>>> API JE POGODJEN:', req.method, req.url);
+//   next();
+// });
+const indexRouter = require('./index'); 
 
 // ========== MongoDB ==========
 mongoose.connect(process.env.MONGO_URI)
@@ -17,7 +21,14 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error('MongoDB connection error:', err));
 
 // middleware
+
 api.use(cors());
+
+// api.use(cors({
+//   origin: 'http://localhost:3000', // 🔥 tačan frontend
+//   credentials: true
+// }));
+
 api.use(logger('dev'));
 api.use(express.json());
 api.use(express.urlencoded({ extended: false }));

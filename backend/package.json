@@ -17,6 +17,7 @@
     "http-errors": "~1.6.3",
     "hubspot": "^2.3.13",
     "jade": "~1.11.0",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.3.3",
     "morgan": "~1.9.1",
     "stream-chat": "^1.14.1"

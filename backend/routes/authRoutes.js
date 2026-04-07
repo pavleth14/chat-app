@@ -11,13 +11,18 @@
 
 
 
-
-
 const express = require('express');
 const router = express.Router();
-const { register, login  } = require('../controllers/authController');
+const { register, login, refresh, logout  } = require('../controllers/authController');
+const authMiddleware = require('../middlewere/authMiddlewere');
 
 router.post('/register', register);    
 router.post('/login', login);
+router.post("/refresh", refresh);
+router.post("/logout", logout);
+
+router.get('/protected', authMiddleware, (req, res) => {
+  res.json({ message: 'You are authorized', user: req.user });
+});
 
 module.exports = router;

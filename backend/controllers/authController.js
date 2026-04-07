@@ -1,13 +1,13 @@
 const { StreamChat } = require('stream-chat');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const { generateAccessToken, generateRefreshToken } = require('../utils/tokens');
 require('dotenv').config();
 
-// inicijalizacija Stream
 const streamClient = new StreamChat(process.env.STREAM_API_KEY, process.env.STREAM_API_SECRET);
 
 // =====================
-// REGISTER (samo user)
+// REGISTER
 // =====================
 exports.register = async (req, res) => {
     console.log(req.body);
@@ -67,33 +67,144 @@ exports.register = async (req, res) => {
     }
 };
 
+// =====================
+// LOGIN
+// =====================
 exports.login = async (req, res) => {
     try {
         const firstName = req.body.firstName.replace(/\s/g, '_').toLowerCase();
         const lastName = req.body.lastName.replace(/\s/g, '_').toLowerCase();
-        const username = `${firstName}${lastName}`;
+        const username = `${firstName}${lastName}`; // koristiti email ili unique ID
         const password = req.body.password;
 
-        // proveri MongoDB
         const user = await User.findOne({ username });
         if (!user) return res.status(404).json({ error: 'User not found' });
 
-        // provera passworda
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).json({ error: 'Invalid password' });
 
-        // generiši Stream token
-        const token = streamClient.createToken(user.username);
+        const streamToken = streamClient.createToken(user.username);
 
-        res.status(200).json({
+        // JWT
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+
+        const hashedRefresh = await bcrypt.hash(refreshToken, 10);
+        user.refreshTokens.push(hashedRefresh); // Razmisli o rotaciji refresh tokena (važna stvar)
+        await user.save();
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: false, // promeni za produkciju: secure: process.env.NODE_ENV === "production"
+            sameSite: "strict"
+            // dodaj path za refresh rutu: path: "/auth/refresh"
+        });
+
+        res.json({
             userId: user.username,
             role: user.role,
-            token,
+            accessToken,
+            streamToken,
             streamApiKey: process.env.STREAM_API_KEY
         });
 
     } catch (err) {
-        console.error(err);
         res.status(500).json({ error: err.message });
+    }
+};
+
+// =====================
+// REFRESH TOKEN
+// =====================
+exports.refresh = async (req, res) => {
+    try {
+        const token = req.cookies.refreshToken;
+        if (!token) return res.sendStatus(401);
+
+        const decoded = require("jsonwebtoken").verify(
+            token,
+            process.env.JWT_REFRESH_SECRET
+        );
+
+        const user = await User.findById(decoded.userId);
+        if (!user) return res.sendStatus(403);
+
+        // proveri hash
+        let valid = false;
+        for (let t of user.refreshTokens) {
+            if (await bcrypt.compare(token, t)) {
+                valid = true;
+                break;
+            }
+        }
+
+        if (!valid) return res.sendStatus(403);
+
+        const newAccessToken = generateAccessToken(user);
+
+        res.json({ accessToken: newAccessToken });
+
+    } catch (err) {
+        res.sendstatus(403);
+    }
+};
+
+// =====================
+// LOGOUT
+// =====================
+
+
+
+
+// exports.logout = async (req, res) => {
+//     const token = req.cookies.refreshToken;
+//     if (!token) return res.sendStatus(204);
+
+//     const user = await User.findOne();
+
+//     user.refreshTokens = user.refreshTokens.filter(async (t) => {
+//         return !(await bcrypt.compare(token, t));
+//     });
+
+//     await user.save();
+
+//     res.clearCookie("refreshToken");
+//     res.sendStatus(204);
+// };
+
+
+
+
+exports.logout = async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        const token = req.cookies.refreshToken;
+
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.sendStatus(401);
+        }
+
+        const accessToken = authHeader.split(" ")[1];
+        const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
+
+        const user = await User.findById(decoded.userId);
+        if (!user) return res.sendStatus(403);
+
+        if (token) {
+            const newTokens = [];
+            for (let t of user.refreshTokens) {
+                if (!(await bcrypt.compare(token, t))) {
+                    newTokens.push(t);
+                }
+            }
+            user.refreshTokens = newTokens;
+            await user.save();
+        }
+
+        res.clearCookie("refreshToken");
+        res.sendStatus(204);
+
+    } catch (err) {
+        res.sendStatus(403);
     }
 };
