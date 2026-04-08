@@ -28,6 +28,7 @@ function Login() {
       const response = await fetch('http://localhost:5001/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           firstName: firstName.trim(),
           lastName: lastName.trim(),
