@@ -14,6 +14,7 @@ exports.register = async (req, res) => {
     try {
         const firstName = req.body.firstName.replace(/\s/g, '_').toLowerCase();
         const lastName = req.body.lastName.replace(/\s/g, '_').toLowerCase();
+        const role = req.body.role;
         const username = `${firstName}${lastName}`;
 
         const password = req.body.password.replace(/\s/g, '_').toLowerCase();
@@ -30,7 +31,7 @@ exports.register = async (req, res) => {
         const user = await User.create({
             username,
             password: hashedPassword,
-            role: 'user',
+            role: role,
             streamId: username,
             firstname: req.body.firstName,
             lastname: req.body.lastName
@@ -40,7 +41,7 @@ exports.register = async (req, res) => {
         await streamClient.updateUser({
             id: username,
             name: firstName,
-            role: 'user'
+            role: role
         });
 
         // kreiraj chat kanal sa adminom
@@ -56,7 +57,7 @@ exports.register = async (req, res) => {
 
         res.status(201).json({
             userId: username,
-            role: 'user',
+            role: role,
             token,
             streamApiKey: process.env.STREAM_API_KEY
         });
