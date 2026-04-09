@@ -1,39 +1,19 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import './index.css';
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
-import Login from './Login';
-import Admin from './Admin';
-import Signup from './Signup';
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import * as serviceWorker from './serviceWorker';
+import App from './App';
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <Switch>
-        {/* Default ruta: kada se otvori "/" idemo na Signup */}
-        <Route path="/" exact>
-         <Login />
-        </Route>
-
-        {/* Customer login/chat */}
-        <Route path="/signup" exact>
-        <Signup />
-        </Route>
-
-        {/* Admin chat */}
-        <Route path="/admin" exact>
-          <Admin />
-        </Route>
-
-        {/* Sve ostalo redirect na "/" */}
-        <Route path="*">
-          <Redirect to="/" />
-        </Route>
-      </Switch>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </BrowserRouter>
-  </React.StrictMode>,
-  document.getElementById('root')
-);
-
+  </React.StrictMode>
+)
 serviceWorker.unregister();
