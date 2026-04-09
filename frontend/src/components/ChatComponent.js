@@ -13,12 +13,19 @@ function ChatComponent({ chatClient, channel, firstName, onLogout }) {
   // Logout funkcija
   const handleLogout = async () => {
     try {
+      const token = localStorage.getItem('accessToken');
+      console.log('token: ', token);
       // Pozovi backend logout da obriše cookie
       await fetch("http://localhost:5001/api/logout", {
         method: "POST",
-        credentials: "include", 
-
+        credentials: "include",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
       });
+
+      localStorage.removeItem('accessToken');
 
       // Diskonektuj Stream korisnika
       await chatClient.disconnectUser();

@@ -2,6 +2,7 @@ const { StreamChat } = require('stream-chat');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const { generateAccessToken, generateRefreshToken } = require('../utils/tokens');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const streamClient = new StreamChat(process.env.STREAM_API_KEY, process.env.STREAM_API_SECRET);
