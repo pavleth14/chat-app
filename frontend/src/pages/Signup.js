@@ -9,6 +9,7 @@ function Signup() {
   const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState("user");
 
   // ref za redirect na login
   const loginLinkRef = useRef(null);
@@ -23,7 +24,7 @@ function Signup() {
       const response = await fetch("http://localhost:5001/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, password }),
+        body: JSON.stringify({ firstName, lastName, password,role }),
       });
 
       if (!response.ok) throw new Error("Registration failed");
@@ -119,6 +120,37 @@ function Signup() {
             </button>
           </form>
         </div>
+        <div>
+  <label className="block text-sm font-medium text-zinc-400 mb-2">
+    Select Role *
+  </label>
+
+  <div className="flex gap-6 bg-zinc-800 p-4 rounded-2xl border border-zinc-700">
+
+    <label className="flex items-center gap-2 cursor-pointer text-white">
+      <input
+        type="radio"
+        value="user"
+        checked={role === "user"}
+        onChange={(e) => setRole(e.target.value)}
+        className="accent-indigo-500"
+      />
+      User
+    </label>
+
+    <label className="flex items-center gap-2 cursor-pointer text-white">
+      <input
+        type="radio"
+        value="admin"
+        checked={role === "admin"}
+        onChange={(e) => setRole(e.target.value)}
+        className="accent-indigo-500"
+      />
+      Admin
+    </label>
+
+  </div>
+</div>
 
         {/* Footer */}
         <div className="text-center pb-8 text-zinc-500 text-sm space-y-2">

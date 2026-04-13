@@ -8,8 +8,10 @@ import {
   TypingIndicator,
 } from "stream-chat-react";
 import CustomEmptyState from "./CustomEmptyState";
+import { useNavigate } from "react-router-dom"; //
 
 function ChatComponent({ chatClient, channel, firstName, onLogout }) {
+  const navigate = useNavigate();
   // Logout funkcija
   const handleLogout = async () => {
     try {
@@ -32,6 +34,7 @@ function ChatComponent({ chatClient, channel, firstName, onLogout }) {
 
       // Obavesti parent (Login komponentu) da je user logout-ovan
       if (onLogout) onLogout();
+      navigate("/login")
 
     } catch (err) {
       console.error("Logout error:", err);
