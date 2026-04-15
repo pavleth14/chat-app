@@ -21,7 +21,7 @@ let chatClient;
 
 function AdminDashboard({ streamToken, streamApiKey, adminName }) {
 
-  const [channel, setChannel] = useState(null);
+  const [channel, setChannel] = useState(null);  
 
   useEffect(() => {
     console.log('Admin Dashboard data:', {
@@ -39,6 +39,8 @@ function AdminDashboard({ streamToken, streamApiKey, adminName }) {
       },
       streamToken
     );
+
+    console.log('LOGGED USER:', chatClient.user);
 
     // get all admins 5    
 

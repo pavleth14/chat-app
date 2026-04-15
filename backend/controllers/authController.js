@@ -129,18 +129,18 @@ exports.login = async (req, res) => {
             });
 
         } else {
-            await streamClient.updateUser(
-                {
-                    // Pavle ovde uhvati i i ime user.id, user.name ili user.role
-                    id: 'admin',
-                    name: 'admin'
-                },
-                streamToken
-            );
+            await streamClient.updateUser({
+                id: user.username,
+                name: user.username,
+                role: 'admin'
+            });
             const channel = streamClient.channel('messaging', "livechat", {
                 name: "Customer Support Dashboard",
-                created_by: { id: 'admin' }
+                created_by: { id: user.username },
+                members: [user.username]
             });
+
+            await channel.create();
 
             await channel.create();
             await channel.addMembers(['admin']);
