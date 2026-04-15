@@ -38,28 +38,28 @@ exports.register = async (req, res) => {
             lastname: req.body.lastName
         });
 
-        // kreiraj user u Stream Chat
-        await streamClient.updateUser({
-            id: username,
-            name: firstName,
-            role: role
-        });
+        // // kreiraj user u Stream Chat
+        // await streamClient.updateUser({
+        //     id: username,
+        //     name: firstName,
+        //     role: role
+        // });
 
-        // kreiraj chat kanal sa adminom
-        const channel = streamClient.channel('messaging', username, {
-            name: `Chat with ${username}`,
-            created_by: { id: 'admin' }
-        });
-        await channel.create();
-        await channel.addMembers([username, 'admin']);
+        // // kreiraj chat kanal sa adminom
+        // const channel = streamClient.channel('messaging', username, {
+        //     name: `Chat with ${username}`,
+        //     created_by: { id: 'admin' }
+        // });
+        // await channel.create();
+        // await channel.addMembers([username, 'admin']);
 
-        // generiši Stream token
-        const token = streamClient.createToken(username);
+        // // generiši Stream token
+        // const token = streamClient.createToken(username);
 
         res.status(201).json({
             userId: username,
             role: role,
-            token,
+            // token,
             streamApiKey: process.env.STREAM_API_KEY
         });
 
@@ -85,8 +85,6 @@ exports.login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).json({ error: 'Invalid password' });
 
-        const streamToken = streamClient.createToken(user.username);
-
         // JWT
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
@@ -95,20 +93,76 @@ exports.login = async (req, res) => {
         user.refreshTokens.push(hashedRefresh); // Razmisli o rotaciji refresh tokena (važna stvar)
         await user.save();
 
-        res.cookie("refreshToken", refreshToken, {
+        res.cookie("accessToken", accessToken, { // Pavle promeni na accesss token
             httpOnly: true,
             secure: false, // promeni za produkciju: secure: process.env.NODE_ENV === "production"
             sameSite: "strict"
             // dodaj path za refresh rutu: path: "/auth/refresh"
         });
 
-        res.json({
-            userId: user.username,
-            role: user.role,
-            accessToken,
-            streamToken,
-            streamApiKey: process.env.STREAM_API_KEY
-        });
+        const streamToken = streamClient.createToken(user.username);
+
+        if (user.role === 'user') {
+            await streamClient.updateUser(
+                {
+                    id: username,
+                    name: firstName
+                },
+                streamToken
+            );
+            const channel = streamClient.channel('messaging', username, {
+                name: `Chat with ${username}`,
+                created_by: { id: 'admin' },
+                members: [username, 'admin']
+            });
+
+            await channel.create();
+            await channel.addMembers([username, 'admin']);
+
+            res.json({
+                userId: user.username,
+                channelId: user.username,
+                role: user.role,
+                accessToken,
+                streamToken,
+                streamApiKey: process.env.STREAM_API_KEY
+            });
+
+        } else {
+            await streamClient.updateUser(
+                {
+                    // Pavle ovde uhvati i i ime user.id, user.name ili user.role
+                    id: 'admin',
+                    name: 'admin'
+                },
+                streamToken
+            );
+            const channel = streamClient.channel('messaging', "livechat", {
+                name: "Customer Support Dashboard",
+                created_by: { id: 'admin' }
+            });
+
+            await channel.create();
+            await channel.addMembers(['admin']);
+
+            res.json({
+                userId: user.username,
+                adminName: user.username,
+                role: user.role,
+                accessToken,
+                streamToken,
+                streamApiKey: process.env.STREAM_API_KEY
+            });
+        }
+
+        // res.json({
+        //     userId: user.username,
+        //     channelId: user.username,
+        //     role: user.role,
+        //     accessToken,
+        //     streamToken,
+        //     streamApiKey: process.env.STREAM_API_KEY
+        // });
 
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -203,7 +257,7 @@ exports.logout = async (req, res) => {
             await user.save();
         }
 
-        res.clearCookie("refreshToken");
+        res.clearCookie("accessToken");
         res.sendStatus(204);
 
     } catch (err) {

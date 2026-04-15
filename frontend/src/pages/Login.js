@@ -35,12 +35,12 @@ function Login() {
       const text = await res.text();
       if (!res.ok) {
         let errMsg = `Error: ${res.status}`;
-        try { errMsg = JSON.parse(text).error || errMsg; } catch {}
+        try { errMsg = JSON.parse(text).error || errMsg; } catch { }
         throw new Error(errMsg);
       }
 
       const data = JSON.parse(text);
-      const { userId, role, streamToken, streamApiKey, accessToken } = data;
+      const { userId, role, streamToken, streamApiKey, accessToken, adminName } = data;
       localStorage.setItem('accessToken', accessToken);
 
       if (!role) throw new Error('User role missing');
@@ -74,11 +74,19 @@ function Login() {
         });
 
         navigate('/chat');
-      } 
+      }
       else if (role === 'admin') {
-        setUser({ userId, role, name: `${firstName} ${lastName}` });
-        navigate('/admin');
-      } 
+        console.log('rola: ', role)
+        setUser({ role, name: `${firstName} ${lastName}` });
+        console.log('Login userId',userId)
+        navigate("/admin", {
+          state: {            
+            adminName,
+            streamToken,
+            streamApiKey
+          }
+        });
+      }
       else {
         throw new Error('Unknown role');
       }

@@ -32,7 +32,9 @@ function UserChatPage() {
           return;
         }
 
-        const newChannel = client.channel('messaging', user.userId); // ili neki drugi channel ID
+       const newChannel = client.channel('messaging', {
+  members: [user.userId, 'admin']
+});// ili neki drugi channel ID
         await newChannel.watch();
 
         setChatClient(client);
