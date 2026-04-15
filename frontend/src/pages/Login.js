@@ -41,6 +41,7 @@ function Login() {
 
       const data = JSON.parse(text);
       const { userId, role, streamToken, streamApiKey, accessToken, adminName } = data;
+      //ovde setujem flag za login preko local storage 
       localStorage.setItem('accessToken', accessToken);
 
       if (!role) throw new Error('User role missing');
