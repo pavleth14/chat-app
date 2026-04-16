@@ -4,8 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { getChatClient } from '../utils/chatClient';
 
 function Login() {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -17,7 +16,7 @@ function Login() {
     e.preventDefault();
     setError('');
 
-    if (!firstName.trim() || !lastName.trim() || !password.trim()) {
+    if (!userName.trim() || !password.trim()) {
       setError('Please fill in all fields');
       return;
     }
@@ -29,7 +28,7 @@ function Login() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ firstName, lastName, password }),
+        body: JSON.stringify({ userName, password }),
       });
 
       const text = await res.text();
@@ -40,7 +39,7 @@ function Login() {
       }
 
       const data = JSON.parse(text);
-      const { userId, role, streamToken, streamApiKey, accessToken, adminName } = data;
+      const { userId, role, streamToken, streamApiKey, accessToken, adminName, userNamee } = data;
       //ovde setujem flag za login preko local storage 
       localStorage.setItem('accessToken', accessToken);
 
@@ -54,12 +53,12 @@ function Login() {
           throw new Error('Failed to initialize chat client');
         }
 
-        const userName = `${firstName.trim()} ${lastName.trim()}`;
+        // const userName = `${firstName.trim()} ${lastName.trim()}`;
 
         console.log('Connecting to Stream Chat...', { userId, userName });
 
         await chatClient.connectUser(
-          { id: userId, name: userName },
+          { id: userId, name: userNamee },
           streamToken
         );
 
@@ -78,7 +77,7 @@ function Login() {
       }
       else if (role === 'admin') {
         console.log('rola: ', role)
-        setUser({ role, name: `${firstName} ${lastName}` });
+        setUser({ role, name: userNamee });
         console.log('Login userId',userId)
         navigate("/admin", {
           state: {            
@@ -110,19 +109,12 @@ function Login() {
 
         <div className="p-8 space-y-6">
           <form onSubmit={login} className="space-y-6">
-            <input
+    
+               <input
               type="text"
-              placeholder="First Name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              disabled={loading}
-              className="w-full p-4 rounded-xl bg-zinc-800 text-white"
-            />
-            <input
-              type="text"
-              placeholder="Last Name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Username"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
               disabled={loading}
               className="w-full p-4 rounded-xl bg-zinc-800 text-white"
             />

@@ -16,7 +16,7 @@ exports.register = async (req, res) => {
         const firstName = req.body.firstName.replace(/\s/g, '_').toLowerCase();
         const lastName = req.body.lastName.replace(/\s/g, '_').toLowerCase();
         const role = req.body.role;
-        const username = req.body.firstName.replace(/\s/g, '_').toLowerCase();
+        const username = req.body.userName.replace(/\s/g, '_').toLowerCase();
 
         const password = req.body.password.replace(/\s/g, '_').toLowerCase();
         if (!password) return res.status(400).json({ error: 'Password is required' });
@@ -73,10 +73,8 @@ exports.register = async (req, res) => {
 // LOGIN
 // =====================
 exports.login = async (req, res) => {
-    try {
-        const firstName = req.body.firstName.replace(/\s/g, '_').toLowerCase();
-        const lastName = req.body.lastName.replace(/\s/g, '_').toLowerCase();
-        const username = `${firstName}${lastName}`; // koristiti email ili unique ID
+    try {        
+        const username = req.body.userName; // koristiti email ili unique ID
         const password = req.body.password;
 
         const user = await User.findOne({ username });
@@ -106,7 +104,7 @@ exports.login = async (req, res) => {
             await streamClient.updateUser(
                 {
                     id: username,
-                    name: firstName
+                    name: username
                 },
                 streamToken
             );
@@ -125,7 +123,8 @@ exports.login = async (req, res) => {
                 role: user.role,
                 accessToken,
                 streamToken,
-                streamApiKey: process.env.STREAM_API_KEY
+                streamApiKey: process.env.STREAM_API_KEY,
+                userNamee: user.username
             });
 
         } else {
