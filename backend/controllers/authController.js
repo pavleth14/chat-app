@@ -16,7 +16,7 @@ exports.register = async (req, res) => {
         const firstName = req.body.firstName.replace(/\s/g, '_').toLowerCase();
         const lastName = req.body.lastName.replace(/\s/g, '_').toLowerCase();
         const role = req.body.role;
-        const username = `${firstName}${lastName}`;
+        const username = req.body.firstName.replace(/\s/g, '_').toLowerCase();
 
         const password = req.body.password.replace(/\s/g, '_').toLowerCase();
         if (!password) return res.status(400).json({ error: 'Password is required' });
@@ -34,8 +34,8 @@ exports.register = async (req, res) => {
             password: hashedPassword,
             role: role,
             streamId: username,
-            firstname: req.body.firstName,
-            lastname: req.body.lastName
+            firstname: firstName,
+            lastname: lastName
         });
 
         // // kreiraj user u Stream Chat

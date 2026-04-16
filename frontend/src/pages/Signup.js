@@ -7,6 +7,9 @@ function Signup() {
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+    const [userName, setUsername] = useState("");
+
+
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState("user");
@@ -24,7 +27,7 @@ function Signup() {
       const response = await fetch("http://localhost:5001/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, password,role }),
+        body: JSON.stringify({ firstName, lastName, password,role,userName }),
       });
 
       if (!response.ok) throw new Error("Registration failed");
@@ -32,7 +35,7 @@ function Signup() {
       alert("Registration successful! You can now log in.");
       setFirstName("");
       setLastName("");
-      //setUsername(""); // <-- reset
+      setUsername(""); // <-- reset
       setPassword("");
 
       // redirect na login preko Link
@@ -83,6 +86,18 @@ function Signup() {
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
+                placeholder="Enter your last name"
+                className="w-full bg-zinc-800 border border-zinc-700 text-white px-5 py-4 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all text-lg placeholder-zinc-500"
+              />
+            </div>
+              <div>
+              <label className="block text-sm font-medium text-zinc-400 mb-2">
+                Username (optional)
+              </label>
+              <input
+                type="text"
+                value={userName}
+                onChange={(e) => setUsername(e.target.value)}
                 placeholder="Enter your last name"
                 className="w-full bg-zinc-800 border border-zinc-700 text-white px-5 py-4 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition-all text-lg placeholder-zinc-500"
               />
