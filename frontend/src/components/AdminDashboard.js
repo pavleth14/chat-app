@@ -20,7 +20,7 @@ let chatClient;
 
 
 
-function AdminDashboard({ streamToken, streamApiKey, adminName ,onLogout}) {
+function AdminDashboard({ streamToken, streamApiKey, adminName, onLogout }) {
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
@@ -71,10 +71,32 @@ function AdminDashboard({ streamToken, streamApiKey, adminName ,onLogout}) {
 
     console.log('LOGGED USER:', chatClient.user);
 
-    // get all admins 5    
+    // Magda get all admins 5    
+
+    const fetchAdmins = async () => {
+      try {
+        const res = await fetch("http://localhost:5001/api/getAdmins", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            // "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        const data = await res.json();
+        console.log(data); // vidi šta dobijaš
+
+        return data;
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchAdmins();
 
     const channell = chatClient.channel('messaging', 'livechat', {
-      members: [adminName] // ovde ubacis
+      members: [adminName] // Magda ovde ubacis admine 
     });
     channell.watch();
     setChannel(channell);
@@ -82,7 +104,7 @@ function AdminDashboard({ streamToken, streamApiKey, adminName ,onLogout}) {
 
 
 
- 
+
   if (channel) {
     return (
       <div>     {/* 🔥 Logout dugme */}
@@ -110,7 +132,7 @@ function AdminDashboard({ streamToken, streamApiKey, adminName ,onLogout}) {
         </Chat >
       </div>
     );
-    }
+  }
 
   //  else {
 
@@ -138,7 +160,7 @@ function AdminDashboard({ streamToken, streamApiKey, adminName ,onLogout}) {
   //           {/* Buttons */}
   //           <div className="flex flex-col sm:flex-row gap-4 justify-center">
 
-        
+
 
   //             <Link to="/chat">
   //               <button className="w-full sm:w-auto px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl font-semibold transition">
