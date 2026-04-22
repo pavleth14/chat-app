@@ -88,7 +88,7 @@ exports.login = async (req, res) => {
         const refreshToken = generateRefreshToken(user);
 
         const hashedRefresh = await bcrypt.hash(refreshToken, 10);
-        user.refreshTokens.push(hashedRefresh); // Razmisli o rotaciji refresh tokena (važna stvar)
+        user.refreshToken = hashedRefresh; // Razmisli o rotaciji refresh tokena (važna stvar)
         await user.save();
 
         res.cookie("accessToken", accessToken, { // Pavle promeni na accesss token
@@ -139,8 +139,7 @@ exports.login = async (req, res) => {
                 members: [user.username]
             });
 
-            await channel.create();
-
+            
             await channel.create();
             await channel.addMembers(['admin']);
 
