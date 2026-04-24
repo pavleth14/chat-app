@@ -9,8 +9,9 @@ import {
 } from "stream-chat-react";
 import CustomEmptyState from "./CustomEmptyState";
 import { useNavigate } from "react-router-dom"; //
-
+import { useAuth } from '../context/AuthContext';
 function ChatComponent({ chatClient, channel, firstName, onLogout }) {
+    const { setUser } = useAuth();
   const navigate = useNavigate();
   // Logout funkcija
   const handleLogout = async () => {
@@ -21,16 +22,15 @@ function ChatComponent({ chatClient, channel, firstName, onLogout }) {
       await fetch("http://localhost:5001/api/logout", {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Authorization": `Bearer ${token}`,
+        headers: {         
           "Content-Type": "application/json"
         }
       });
-
-      localStorage.removeItem('accessToken');
-
+  localStorage.removeItem('accessToken');
+    
+setUser(null);
       // Diskonektuj Stream korisnika
-      await chatClient.disconnectUser();
+        await chatClient?.disconnectUser();
 
       // Obavesti parent (Login komponentu) da je user logout-ovan
       if (onLogout) onLogout();
