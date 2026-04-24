@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { StreamChat } from 'stream-chat';
 import { useNavigate } from "react-router-dom"; //
 import 'stream-chat-react/dist/css/v2/index.css';
+import { useAuth } from '../context/AuthContext';
 import {
   Chat,
   Channel,
@@ -22,6 +23,7 @@ let chatClient;
 
 function AdminDashboard({ streamToken, streamApiKey, adminName, onLogout }) {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem('accessToken');
@@ -31,16 +33,19 @@ function AdminDashboard({ streamToken, streamApiKey, adminName, onLogout }) {
         method: "POST",
         credentials: "include",
         headers: {
-          "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
         }
       });
 
+      // 🔥 reset React state (OBAVEZNO)
+    
+
       localStorage.removeItem('accessToken');
 
       // Diskonektuj Stream korisnika
-      await chatClient.disconnectUser();
-
+      await chatClient?.disconnectUser();
+ chatClient = null;
+   setUser(null);
       // Obavesti parent (Login komponentu) da je user logout-ovan
       if (onLogout) onLogout();
       navigate("/login")

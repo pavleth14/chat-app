@@ -230,37 +230,43 @@ exports.refresh = async (req, res) => {
 
 
 exports.logout = async (req, res) => {
-    try {
-        const authHeader = req.headers.authorization;
-        const token = req.cookies.refreshToken;
+  try {
+    // (opciono) ako koristiš refresh token u cookie
+    const refreshToken = req.cookies.refreshToken;
 
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            return res.sendStatus(401);
+    // ako čuvaš refresh tokene u bazi — očisti ih
+    if (refreshToken) {
+      const user = await User.findOne({
+        refreshTokens: { $exists: true, $ne: [] }
+      });
+
+      if (user) {
+        const newTokens = [];
+
+        for (let t of user.refreshTokens) {
+          const match = await bcrypt.compare(refreshToken, t);
+          if (!match) newTokens.push(t);
         }
 
-        const accessToken = authHeader.split(" ")[1];
-        const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
-
-        const user = await User.findById(decoded.userId);
-        if (!user) return res.sendStatus(403);
-
-        if (token) {
-            const newTokens = [];
-            for (let t of user.refreshTokens) {
-                if (!(await bcrypt.compare(token, t))) {
-                    newTokens.push(t);
-                }
-            }
-            user.refreshTokens = newTokens;
-            await user.save();
-        }
-
-        res.clearCookie("accessToken");
-        res.sendStatus(204);
-
-    } catch (err) {
-        res.sendStatus(403);
+        user.refreshTokens = newTokens;
+        await user.save();
+      }
     }
+
+    // 🔥 briši access cookie
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false, // true u production
+        path: "/"
+    });
+    
+
+    return res.sendStatus(204);
+  } catch (err) {
+    console.error("Logout error:", err);
+    return res.sendStatus(500);
+  }
 };
 
 
