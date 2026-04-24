@@ -26,8 +26,6 @@ function AdminDashboard({ streamToken, streamApiKey, adminName, onLogout }) {
   const { setUser } = useAuth();
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
-      console.log('token: ', token);
       // Pozovi backend logout da obriše cookie
       await fetch("http://localhost:5001/api/logout", {
         method: "POST",
@@ -37,15 +35,10 @@ function AdminDashboard({ streamToken, streamApiKey, adminName, onLogout }) {
         }
       });
 
-      // 🔥 reset React state (OBAVEZNO)
-    
-
-      localStorage.removeItem('accessToken');
-
       // Diskonektuj Stream korisnika
       await chatClient?.disconnectUser();
- chatClient = null;
-   setUser(null);
+      chatClient = null;
+      setUser(null);
       // Obavesti parent (Login komponentu) da je user logout-ovan
       if (onLogout) onLogout();
       navigate("/login")

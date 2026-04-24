@@ -16,8 +16,6 @@ function ChatComponent({ chatClient, channel, firstName, onLogout }) {
   // Logout funkcija
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
-      console.log('token: ', token);
       // Pozovi backend logout da obriše cookie
       await fetch("http://localhost:5001/api/logout", {
         method: "POST",
@@ -26,7 +24,6 @@ function ChatComponent({ chatClient, channel, firstName, onLogout }) {
           "Content-Type": "application/json"
         }
       });
-  localStorage.removeItem('accessToken');
     
 setUser(null);
       // Diskonektuj Stream korisnika
