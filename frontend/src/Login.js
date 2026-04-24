@@ -52,7 +52,6 @@ function Login() {
       const data = JSON.parse(responseText);
       const { userId, streamToken, streamApiKey, accessToken } = data;
       console.log('access token', accessToken);
-      localStorage.setItem('accessToken', accessToken);
 
       if (!streamApiKey) throw new Error('Missing Stream API key');
 
