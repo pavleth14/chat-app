@@ -94,11 +94,11 @@ exports.login = async (req, res) => {
         res.cookie("accessToken", accessToken, { // Pavle promeni na accesss token
             httpOnly: true,
             secure: false, // promeni za produkciju: secure: process.env.NODE_ENV === "production"
-            sameSite: "strict"
+            sameSite: "lax"
             // dodaj path za refresh rutu: path: "/auth/refresh"
         });
 
-        const streamToken = streamClient.createToken(user.username);
+        const streamToken = streamClient.createToken(user.username);  // 13134466
 
         if (user.role === 'user') {
             await streamClient.updateUser(
@@ -261,4 +261,38 @@ exports.logout = async (req, res) => {
     } catch (err) {
         res.sendStatus(403);
     }
+};
+
+
+
+exports.useMe = async (req, res) => {
+  try {
+    const token = req.cookies.accessToken;
+
+    if (!token) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    // Pavle vidi kako se trazi user u login
+    const user = await User.findById(decoded.userId)//.select("-password");
+    // Pavle ovako se vrv ne dobija isti token, da li treba isti?
+    const streamToken = streamClient.createToken(user.username); // 13134466
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      userId: user.username,
+      role: user.role,
+      streamToken,        
+      streamApiKey: process.env.STREAM_API_KEY,
+      userNamee: user.username, 
+      pavle: 'Pavle'
+    });
+
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
 };

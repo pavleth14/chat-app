@@ -3,12 +3,14 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 function ProtectedRoute({ children, role }) {
-  const { user } = useAuth();
+  const { user } = useAuth();  
 
-  if (!user) return <Navigate to="/" />;
+  // ⛔ ako nema usera → login
+  if (!user) return <Navigate to="/" replace />;
 
+  // ⛔ role check
   if (role && user.role !== role) {
-    return <Navigate to="/" />;
+    return <Navigate to="/" replace />;
   }
 
   return children;

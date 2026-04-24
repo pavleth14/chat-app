@@ -16,25 +16,26 @@ function UserChatPage() {
   useEffect(() => {
     const initChat = async () => {
       if (!user?.userId || !user?.role || user.role !== 'user') {
-        navigate('/'); 
+        navigate('/');
         return;
       }
 
       try {
+        console.log('user.streamApiKey: ', user.streamApiKey);
         const client = getChatClient(user.streamApiKey || undefined); // ako imaš apiKey u user-u
+        console.log('client', client);
 
-        // Ako client već ima konektovanog user-a, ne radi ništa
-        if (!client.userID) {
-          // Ovde treba da imaš token! 
-          // Problem: token nije sačuvan nigde!
-          console.error("Stream token nije dostupan!");
-          setError("Chat token missing");
-          return;
-        }
+        console.log('user iz UserChatPage', user);
 
-       const newChannel = client.channel('messaging', {
-  members: [user.userId, 'admin']
-});// ili neki drugi channel ID
+        await client.connectUser(
+           { id: user.userId, name: user.userNamee },
+          user.streamToken
+         );
+
+
+        const newChannel = client.channel('messaging', {
+          members: [user.userId, 'admin']
+        });// ili neki drugi channel ID
         await newChannel.watch();
 
         setChatClient(client);

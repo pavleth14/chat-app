@@ -1,28 +1,46 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import UserChatPage from './pages/UserChatPage';
 import AdminPage from './pages/AdminPage';
 import Signup from './pages/Signup';
 import ProtectedRoute from './components/ProtectedRoute';
- // Ako Admin chat je posebna stranica
+import { AuthContext } from './context/AuthContext';
 
 function App() {
+  const { user, loading } = useContext(AuthContext);
+
+  console.log('user na pocetku', user);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Routes>
-      {/* Login stranica */}
-      <Route path="/" element={<Login />} />
+      {/* Login */}
+      <Route
+        path="/"
+        element={user ? <Navigate to="/chat" /> : <Login />}
+      />
 
-      {/* User chat */}
- <Route
+      {/* Signup */}
+      <Route
+        path="/signup"
+        element={user ? <Navigate to="/chat" /> : <Signup />}
+      />
+
+      {/* User */}
+      <Route
         path="/chat"
-        element={
+        element={ 
           <ProtectedRoute role="user">
             <UserChatPage />
           </ProtectedRoute>
         }
       />
 
+      {/* Admin */}
       <Route
         path="/admin"
         element={
@@ -32,15 +50,7 @@ function App() {
         }
       />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-
-      {/* Signup */}
-      <Route path="/signup" element={<Signup />} />
-
-      {/* Admin chat */}
-    
-
-      {/* Sve ostalo → redirect na login */}
+      {/* Catch all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
