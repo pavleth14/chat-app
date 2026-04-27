@@ -144,6 +144,12 @@ function Login() {
         <div className="text-center pb-8 text-zinc-500 text-sm">
           Your data is safe and will only be used for this chat session.
         </div>
+
+        <div  className="text-center pb-8 text-zinc-500 text-sm">
+          <p>Don't Have An Account? <span onClick={() => navigate('/signup')} className='underline text-purple-500 cursor-pointer'>Sign Up</span></p>
+        </div>
+
+
       </div>
     </div>
   );
