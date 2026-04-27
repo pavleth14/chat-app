@@ -23,6 +23,18 @@ function Signup() {
 
     setLoading(true);
 
+    if(password.length < 8) {
+      alert('Kratak password');
+      setLoading(false);
+      return;
+    }
+
+    if(userName.length < 8) {
+      alert('Kratak password');
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch("http://localhost:5001/api/register", {
         method: "POST",

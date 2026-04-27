@@ -13,12 +13,12 @@ const streamClient = new StreamChat(process.env.STREAM_API_KEY, process.env.STRE
 exports.register = async (req, res) => {
     console.log(req.body);
     try {
-        const firstName = req.body.firstName.replace(/\s/g, '_').toLowerCase();
-        const lastName = req.body.lastName.replace(/\s/g, '_').toLowerCase();
+        const firstName = req.body.firstName;
+        const lastName = req.body.lastName;
         const role = req.body.role;
-        const username = req.body.userName.replace(/\s/g, '_').toLowerCase();
+        const username = req.body.userName;
 
-        const password = req.body.password.replace(/\s/g, '_').toLowerCase();
+        const password = req.body.password;
         if (!password) return res.status(400).json({ error: 'Password is required' });
 
         // proveri MongoDB

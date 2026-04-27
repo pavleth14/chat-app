@@ -4,6 +4,7 @@ import { StreamChat } from 'stream-chat';
 import { useNavigate } from "react-router-dom"; //
 import 'stream-chat-react/dist/css/v2/index.css';
 import { useAuth } from '../context/AuthContext';
+import SignUpModal from "./SignUpModal";
 import {
   Chat,
   Channel,
@@ -23,6 +24,7 @@ let chatClient;
 
 function AdminDashboard({ streamToken, streamApiKey, adminName, onLogout }) {
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
   const { setUser } = useAuth();
   const handleLogout = async () => {
     try {
@@ -105,31 +107,67 @@ function AdminDashboard({ streamToken, streamApiKey, adminName, onLogout }) {
 
   if (channel) {
     return (
-      <div>     {/* 🔥 Logout dugme */}
-        <button
-          onClick={handleLogout}
-          className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-xl transition-colors text-sm"
-        >
-          Logout
-        </button>
-        <Chat client={chatClient} theme={"messaging light"}>
-          <ChannelList
-            sort={{ last_message_at: -1 }}
-            Preview={ChannelPreviewMessenger}
-            onSelect={(channel) => { setChannel(channel); }
-            }
-          />
-          <Channel>
-            <Window>
-              <ChannelHeader />
-              <MessageList />
-              <MessageInput focus />
-            </Window>
-            <Thread />
-          </Channel>
-        </Chat >
+      <div className="min-h-screen bg-zinc-950 text-white flex flex-col">
+
+        {/* Header */}
+        <header className="w-full px-6 py-4 border-b border-zinc-800 flex justify-between items-center">
+          <h1 className="text-xl font-bold">Admin Dashboard</h1>
+
+          <div className="flex items-center gap-3">
+            {/* Sign Up dugme */}
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl text-sm font-semibold transition"
+            >
+              Sign Up
+            </button>
+
+            {/* Logout dugme */}
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-xl text-sm font-semibold transition"
+            >
+              Logout
+            </button>
+          </div>
+        </header>
+
+        {/* Chat container */}
+        <div className="flex flex-1 overflow-hidden">
+
+          {/* Channel list */}
+          <div className="w-[320px] border-r border-zinc-800 p-2">
+            <Chat client={chatClient} theme={"messaging light"}>
+              <ChannelList
+                sort={{ last_message_at: -1 }}
+                Preview={ChannelPreviewMessenger}
+                onSelect={(channel) => setChannel(channel)}
+              />
+            </Chat>
+          </div>
+
+          {/* Chat window */}
+          <div className="flex-1 p-4">
+            <Chat client={chatClient} theme={"messaging light"}>
+              <Channel>
+                <Window>
+                  <ChannelHeader />
+                  <MessageList />
+                  <MessageInput focus />
+                </Window>
+                <Thread />
+              </Channel>
+            </Chat>
+          </div>
+
+        </div>
+        <SignUpModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+        />
       </div>
     );
+
   }
 
   //  else {
