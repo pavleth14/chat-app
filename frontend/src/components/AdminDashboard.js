@@ -24,8 +24,8 @@ let chatClient;
 
 function AdminDashboard({ streamToken, streamApiKey, adminName, onLogout }) {
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
   const { setUser } = useAuth();
+  const [showModal, setShowModal] = useState(false);
   const handleLogout = async () => {
     try {
       // Pozovi backend logout da obriše cookie
@@ -71,7 +71,7 @@ function AdminDashboard({ streamToken, streamApiKey, adminName, onLogout }) {
 
     console.log('LOGGED USER:', chatClient.user);
 
-    // Magda get all admins 5    
+    // Magda get all admins 5
 
     const fetchAdmins = async () => {
       try {
@@ -96,78 +96,66 @@ function AdminDashboard({ streamToken, streamApiKey, adminName, onLogout }) {
     fetchAdmins();
 
     const channell = chatClient.channel('messaging', 'livechat', {
-      members: [adminName] // Magda ovde ubacis admine 
+      members: [adminName] // Magda ovde ubacis admine
     });
     channell.watch();
     setChannel(channell);
   }, [streamToken, streamApiKey, adminName]);
 
 
-
+  const handleOpenModal = () => {
+    setShowModal(true);
+  }
 
   if (channel) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white flex flex-col">
+      <div> {/* :fire: Logout dugme */}
 
-        {/* Header */}
-        <header className="w-full px-6 py-4 border-b border-zinc-800 flex justify-between items-center">
-          <h1 className="text-xl font-bold">Admin Dashboard</h1>
+        <div className="flex flex-row justify-end gap-3">
 
-          <div className="flex items-center gap-3">
-            {/* Sign Up dugme */}
-            <button
-              onClick={() => setShowModal(true)}
-              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl text-sm font-semibold transition"
-            >
-              Sign Up
-            </button>
+          <button
+            onClick={handleLogout}
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-xl transition-colors text-sm"
+          >
+            Logout
+          </button>
 
-            {/* Logout dugme */}
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-xl text-sm font-semibold transition"
-            >
-              Logout
-            </button>
-          </div>
-        </header>
+          <button
+            onClick={handleOpenModal}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-xl transition-colors text-sm"
+          >
+            SignUp
+          </button>
 
-        {/* Chat container */}
-        <div className="flex flex-1 overflow-hidden">
-
-          {/* Channel list */}
-          <div className="w-[320px] border-r border-zinc-800 p-2">
-            <Chat client={chatClient} theme={"messaging light"}>
-              <ChannelList
-                sort={{ last_message_at: -1 }}
-                Preview={ChannelPreviewMessenger}
-                onSelect={(channel) => setChannel(channel)}
-              />
-            </Chat>
-          </div>
-
-          {/* Chat window */}
-          <div className="flex-1 p-4">
-            <Chat client={chatClient} theme={"messaging light"}>
-              <Channel>
-                <Window>
-                  <ChannelHeader />
-                  <MessageList />
-                  <MessageInput focus />
-                </Window>
-                <Thread />
-              </Channel>
-            </Chat>
-          </div>
+          {showModal && (
+            <SignUpModal
+              isOpen={showModal}
+              onClose={() => setShowModal(false)}
+            />
+          )}
 
         </div>
-        <SignUpModal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-        />
+
+
+        <Chat client={chatClient} theme={"messaging light"}>
+          <ChannelList
+            sort={{ last_message_at: -1 }}
+            Preview={ChannelPreviewMessenger}
+            onSelect={(channel) => { setChannel(channel); }
+            }
+          />
+          <Channel>
+            <Window>
+              <ChannelHeader />
+              <MessageList />
+              <MessageInput focus />
+            </Window>
+            <Thread />
+          </Channel>
+        </Chat >
+
       </div>
     );
-
   }
 
   //  else {
@@ -200,7 +188,7 @@ function AdminDashboard({ streamToken, streamApiKey, adminName, onLogout }) {
 
   //             <Link to="/chat">
   //               <button className="w-full sm:w-auto px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl font-semibold transition">
-  //                 💬 Open Chat
+  //                 :speech_balloon: Open Chat
   //               </button>
   //             </Link>
 
