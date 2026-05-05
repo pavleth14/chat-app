@@ -109,13 +109,13 @@ exports.login = async (req, res) => {
                 streamToken
             );
             const channel = streamClient.channel('messaging', username, {
-                name: `Chat with ${username}`,
+                // name: `Chat with ${username}`,
                 created_by: { id: 'admin' },
-                members: [username, 'admin']
+                // members: [username, 'admin']
             });
 
             await channel.create();
-            await channel.addMembers([username, 'admin']);
+            // await channel.addMembers([username, 'admin']);
 
             res.json({
                 userId: user.username,
