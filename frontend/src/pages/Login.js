@@ -39,8 +39,8 @@ function Login() {
       }
 
       const data = JSON.parse(text);
-      const { userId, role, streamToken, streamApiKey, accessToken, adminName, userNamee } = data;      
-
+      const { userId, role, streamToken, streamApiKey, accessToken, adminName, userNamee,lastLogin } = data;      
+      console.log('last login', lastLogin)
       if (!role) throw new Error('User role missing');
 
       if (role === 'user') {
@@ -68,7 +68,8 @@ function Login() {
           role,
           name: userName,
           streamToken,     // VAŽNO!
-          streamApiKey     // VAŽNO!
+          streamApiKey,
+          lastLogin     // VAŽNO!
         });
 
         navigate('/chat');

@@ -7,7 +7,11 @@ const userSchema = new mongoose.Schema({
   streamId: { type: String, required: true, unique: true },
   firstname: { type: String },
   lastname: { type: String },
-  refreshToken: { type: String }
+  refreshToken: { type: String },
+  lastLogin: {
+  type: Date,
+  default: null
+}
 });
 
 module.exports = mongoose.model('User', userSchema);

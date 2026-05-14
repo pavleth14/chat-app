@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
           throw new Error("Not authenticated");
         }
         const data = await res.json();
-        console.log(data);
+        console.log('user', data);
         setUser(data);
       })
       .catch(() => {

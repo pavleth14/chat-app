@@ -73,34 +73,47 @@ exports.register = async (req, res) => {
 // LOGIN
 // =====================
 exports.login = async (req, res) => {
-    try {        
-        const username = req.body.userName; // koristiti email ili unique ID
+    try {
+        const username = req.body.userName;
         const password = req.body.password;
 
         const user = await User.findOne({ username });
-        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        if (!user)
+            return res.status(404).json({ error: 'User not found' });
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(401).json({ error: 'Invalid password' });
+
+        if (!isMatch)
+            return res.status(401).json({ error: 'Invalid password' });
+
+        // UPDATE NOVI LOGIN
+        user.lastLogin = new Date();
+
+        // SACUVAJ STARI LOGIN
+        const previousLogin = user.lastLogin;
+        
 
         // JWT
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
 
         const hashedRefresh = await bcrypt.hash(refreshToken, 10);
-        user.refreshToken = hashedRefresh; // Razmisli o rotaciji refresh tokena (važna stvar)
+
+        user.refreshToken = hashedRefresh;
+
         await user.save();
 
-        res.cookie("accessToken", accessToken, { // Pavle promeni na accesss token
+        res.cookie("accessToken", accessToken, {
             httpOnly: true,
-            secure: false, // promeni za produkciju: secure: process.env.NODE_ENV === "production"
+            secure: false,
             sameSite: "lax"
-            // dodaj path za refresh rutu: path: "/auth/refresh"
         });
 
-        const streamToken = streamClient.createToken(user.username);  // 13134466
+        const streamToken = streamClient.createToken(user.username);
 
         if (user.role === 'user') {
+
             await streamClient.updateUser(
                 {
                     id: username,
@@ -108,14 +121,16 @@ exports.login = async (req, res) => {
                 },
                 streamToken
             );
-            const channel = streamClient.channel('messaging', username, {
-                // name: `Chat with ${username}`,
-                created_by: { id: 'admin' },
-                // members: [username, 'admin']
-            });
+
+            const channel = streamClient.channel(
+                'messaging',
+                username,
+                {
+                    created_by: { id: 'admin' }
+                }
+            );
 
             await channel.create();
-            // await channel.addMembers([username, 'admin']);
 
             res.json({
                 userId: user.username,
@@ -124,23 +139,32 @@ exports.login = async (req, res) => {
                 accessToken,
                 streamToken,
                 streamApiKey: process.env.STREAM_API_KEY,
-                userNamee: user.username
+                userNamee: user.username,
+
+                // OVO DODAJ
+                lastLogin: previousLogin
             });
 
         } else {
+
             await streamClient.updateUser({
                 id: user.username,
                 name: user.username,
                 role: 'admin'
             });
-            const channel = streamClient.channel('messaging', "livechat", {
-                name: "Customer Support Dashboard",
-                created_by: { id: user.username },
-                members: [user.username]
-            });
 
-            
+            const channel = streamClient.channel(
+                'messaging',
+                "livechat",
+                {
+                    name: "Customer Support Dashboard",
+                    created_by: { id: user.username },
+                    members: [user.username]
+                }
+            );
+
             await channel.create();
+
             await channel.addMembers(['admin']);
 
             res.json({
@@ -149,18 +173,12 @@ exports.login = async (req, res) => {
                 role: user.role,
                 accessToken,
                 streamToken,
-                streamApiKey: process.env.STREAM_API_KEY
+                streamApiKey: process.env.STREAM_API_KEY,
+
+                // OVO DODAJ
+                lastLogin: previousLogin
             });
         }
-
-        // res.json({
-        //     userId: user.username,
-        //     channelId: user.username,
-        //     role: user.role,
-        //     accessToken,
-        //     streamToken,
-        //     streamApiKey: process.env.STREAM_API_KEY
-        // });
 
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -295,7 +313,8 @@ exports.useMe = async (req, res) => {
       streamToken,        
       streamApiKey: process.env.STREAM_API_KEY,
       userNamee: user.username, 
-      pavle: 'Pavle'
+      pavle: 'Pavle',
+      lastLogin:user.lastLogin
     });
 
   } catch (err) {
